@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +14,105 @@ namespace Kinoteatr4121
 {
     public partial class Administrator : Form
     {
-        int x = 3, y = 3;
+        private SqlConnection con = new SqlConnection(@"Data Source=LAPTOP-JSJGVJUO;Initial Catalog=KINOKASSA;Integrated Security=True");
+        static int x = 3, y = 3;
+        string fileText = null, dir = null, photo = null;
+        Button btnCreateSession = new Button
+        {
+            AutoSize = true,
+            BackColor = Color.LightGreen,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y),
+            MinimumSize = new Size(250, 50),
+            Text = "Добавить сеанс"
+        };
+        Button btnDelSession = new Button
+        {
+            AutoSize = true,
+            BackColor = Color.LightGray,
+            FlatStyle = FlatStyle.Flat,
+            Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 54),
+            MinimumSize = new Size(250, 50),
+            Text = "Удалить/Изменить сеанс"
+        };
+        Label label1 = new Label
+        {
+            AutoSize = false,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 52),
+            Text = "Дата:"
+        };
+        DateTimePicker txtDate = new DateTimePicker
+        {
+            AutoSize = true,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 23)
+        };
+        Label label2 = new Label
+        {
+            AutoSize = false,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 28),
+            Text = "Время:"
+        };
+        ComboBox txtTime = new ComboBox
+        {
+            AutoSize = false,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 23)
+        };
+        Label label3 = new Label
+        {
+            AutoSize = false,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 28),
+            Text = "Фильм:"
+        };
+        TextBox txtFilm = new TextBox
+        {
+            AutoSize = true,
+            MinimumSize = new Size(300, 20),
+            Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 23)
+        };
+        Label label4 = new Label
+        {
+            AutoSize = false,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 28),
+            Text = "Зал:"
+        };
+        ComboBox txtHall = new ComboBox
+        {
+            AutoSize = false,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 23),
+        };
+        Label label5 = new Label
+        {
+            AutoSize = false,
+            Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 28),
+            Text = "Цена:"
+        };
+        TextBox txtPrice = new TextBox
+        {
+            AutoSize = true,
+            MinimumSize = new Size(100, 20),
+            Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
+            Location = new Point(x, y += 23)
+        };
+        PictureBox pictureBox = new PictureBox
+        {
+            Image = Properties.Resources.NoImage,
+            SizeMode = PictureBoxSizeMode.Zoom,
+            Location = new Point(x, y += 30),
+            Name = "picPoster",
+            Size = new Size(200, 200)
+        };
+        DB db = new DB();
         public Administrator()
         {
             InitializeComponent();
@@ -23,62 +123,16 @@ namespace Kinoteatr4121
             AddSessions();
         }
 
-        private void AddSessions()
+        public void AddSessions()
         {
-            Button btnCreateSession = new Button
-            {
-                AutoSize = true,
-                BackColor = Color.LightGreen,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y),
-                MinimumSize = new Size(250, 50),
-                Text = "Добавить сеанс"
-            };
             panelMain.Controls.Add(btnCreateSession);
             btnCreateSession.Click += new EventHandler(this.btnCreateSession_Click);
-            Button btnDelSession = new Button
-            {
-                AutoSize = true,
-                BackColor = Color.LightGray,
-                FlatStyle = FlatStyle.Flat,
-                Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 54),
-                MinimumSize = new Size(250, 50),
-                Text = "Удалить/Изменить сеанс"
-            };
             panelMain.Controls.Add(btnDelSession);
-            btnDelSession.Click += new EventHandler(this.btnDelSession);
-            Label label1 = new Label
-            {
-                AutoSize = false,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 52),
-                Text = "Дата:"
-            };
+            btnDelSession.Click += new EventHandler(this.btnDelSession_Click);
             panelMain.Controls.Add(label1);
-            DateTimePicker dateTime = new DateTimePicker
-            {
-                AutoSize = true,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 23)
-            };
-            panelMain.Controls.Add(dateTime);
-            Label label2 = new Label
-            {
-                AutoSize = false,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 28),
-                Text = "Время:"
-            };
+            panelMain.Controls.Add(txtDate);
             panelMain.Controls.Add(label2);
-            ComboBox comboBox1 = new ComboBox
-            {
-                AutoSize = false,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 23)
-            };
-            comboBox1.Items.AddRange(new object[] {
+            txtTime.Items.AddRange(new object[] {
             "9:00",
             "11:00",
             "13:00",
@@ -86,65 +140,17 @@ namespace Kinoteatr4121
             "17:00",
             "19:00",
             "21:00"});
-            panelMain.Controls.Add(comboBox1);
-            Label label3 = new Label
-            {
-                AutoSize = false,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 28),
-                Text = "Фильм:"
-            };
+            panelMain.Controls.Add(txtTime);
             panelMain.Controls.Add(label3);
-            TextBox textBox1 = new TextBox
-            {
-                AutoSize = true,
-                MinimumSize = new Size(300, 20),
-                Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 23)
-            };
-            panelMain.Controls.Add(textBox1);
-            Label label4 = new Label
-            {
-                AutoSize = false,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 28),
-                Text = "Зал:"
-            };
+            panelMain.Controls.Add(txtFilm);
             panelMain.Controls.Add(label4);
-            ComboBox comboBox2 = new ComboBox
-            {
-                AutoSize = false,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 23),
-            };
-            comboBox2.Items.AddRange(new object[] {
+            txtHall.Items.AddRange(new object[] {
             "1",
             "2",
             "3"});
-            panelMain.Controls.Add(comboBox2);
-            Label label5 = new Label
-            {
-                AutoSize = false,
-                Font = new Font("Malgun Gothic", 10.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 28),
-                Text = "Цена:"
-            };
+            panelMain.Controls.Add(txtHall);
             panelMain.Controls.Add(label5);
-            TextBox textBox2 = new TextBox
-            {
-                AutoSize = true,
-                MinimumSize = new Size(100, 20),
-                Font = new Font("Malgun Gothic", 11.8F, FontStyle.Regular, GraphicsUnit.Point, ((byte)(0))),
-                Location = new Point(x, y += 23)
-            };
-            panelMain.Controls.Add(textBox2);
-            PictureBox pictureBox = new PictureBox
-            {
-                Image = Properties.Resources.NoImage,
-                SizeMode = PictureBoxSizeMode.StretchImage,
-                Location = new Point(x, y += 28),
-                Size = new Size(200, 200)
-            };
+            panelMain.Controls.Add(txtPrice);
             panelMain.Controls.Add(pictureBox);
             Button btnPoster = new Button
             {
@@ -157,6 +163,7 @@ namespace Kinoteatr4121
                 Text = "Выбрать постер"
             };
             panelMain.Controls.Add(btnPoster);
+            btnPoster.Click += new EventHandler(this.btnPoster_Click);
             Button btnConfirm = new Button
             {
                 AutoSize = true,
@@ -168,9 +175,72 @@ namespace Kinoteatr4121
                 Text = "Подтвердить"
             };
             panelMain.Controls.Add(btnConfirm);
+            btnConfirm.Click += new EventHandler(this.btnConfirm_Click);
+        }
+        void Add_User(string date, string time, string film, string hall, string price, string photo)
+        {
+            try
+            {
+                con.Open();
+                SqlCommand command2 = con.CreateCommand();
+                command2.CommandText = "INSERT INTO [Sessions] VALUES (@date, @time, @film, @hall, @price, @photo)";
+                command2.Parameters.AddWithValue("@date", date);
+                command2.Parameters.AddWithValue("@time", time);
+                command2.Parameters.AddWithValue("@film", film);
+                command2.Parameters.AddWithValue("@hall", hall);
+                command2.Parameters.AddWithValue("@price", price);
+                command2.Parameters.AddWithValue("@photo", photo);
+                command2.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex);
+            }
+        }
+        private void btnConfirm_Click(object sender, EventArgs e)
+        {
+            if (txtFilm.Text == null || txtHall.Text == null || txtPrice.Text == null || txtTime.Text == null) MessageBox.Show("Заполните все поля!");
+            else
+            {
+                if(photo != null)
+                {
+                    if(!File.Exists(Environment.CurrentDirectory + photo))
+                    {
+                        try
+                        {
+                            File.Copy(dir + $@"\{fileText}", Environment.CurrentDirectory + photo);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Error: {ex}");
+                        }
+                    }
+                    string myDate = txtDate.Value.ToString("yyyy.MM.dd");
+                    Add_User(myDate, txtTime.Text, txtFilm.Text, txtHall.Text, txtPrice.Text, photo);
+                    MessageBox.Show("Успех!");
+                }
+                if (photo == null)
+                {
+                    string myDate = txtDate.Value.ToString("yyyy.MM.dd");
+                    Add_User(myDate, txtTime.Text, txtFilm.Text, txtHall.Text, txtPrice.Text, "not poster");
+                    MessageBox.Show("Успех!");
+                }
+            }
         }
 
-        private void btnDelSession(object sender, EventArgs e)
+        private void btnPoster_Click(object sender, EventArgs e)
+        {
+            openFileDialog1.Filter = "Images(*.jpg)|*.jpg|Images(*.png)|*.png|All files(*.*)|*.*";
+            if (openFileDialog1.ShowDialog() == DialogResult.Cancel) return;
+            string fileName = openFileDialog1.FileName;
+            fileText = Path.GetFileName(openFileDialog1.FileName);
+            dir = Path.GetDirectoryName(openFileDialog1.FileName);
+            pictureBox.Image = Image.FromFile(openFileDialog1.FileName);
+            photo = $@"\images\{fileText}";
+        }
+
+        private void btnDelSession_Click(object sender, EventArgs e)
         {
             MessageBox.Show("gjmuk");
         }

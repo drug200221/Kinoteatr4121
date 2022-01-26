@@ -35,6 +35,7 @@ namespace Kinoteatr4121
             this.btnSession = new System.Windows.Forms.Button();
             this.btnUsers = new System.Windows.Forms.Button();
             this.panelMain = new System.Windows.Forms.Panel();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.flowP.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -102,6 +103,10 @@ namespace Kinoteatr4121
             this.panelMain.Size = new System.Drawing.Size(1530, 881);
             this.panelMain.TabIndex = 1;
             // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
             // Administrator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -127,5 +132,6 @@ namespace Kinoteatr4121
         private System.Windows.Forms.Button btnTicket;
         private System.Windows.Forms.Button btnSession;
         private System.Windows.Forms.Panel panelMain;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
     }
 }
